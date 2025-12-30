@@ -1,15 +1,16 @@
 import { gql, TypedDocumentNode } from '@apollo/client';
 
-type GetUserQuery = {
+type GetUsersQuery = {
   getUsers: {
-    __typename: string;
     id: string;
     name: string;
     age: number;
     isMarried: boolean;
   }[];
+};
+
+type GetUserByIdQuery = {
   getUserById: {
-    __typename: string;
     id: string;
     name: string;
     age: number;
@@ -17,7 +18,7 @@ type GetUserQuery = {
   };
 };
 
-type GetUserMutation = {
+type CreateUserMutation = {
   createUser: {
     id: string;
     name: string;
@@ -26,12 +27,17 @@ type GetUserMutation = {
   };
 };
 
-type GetUserQueryVariables = Record<string, unknown>;
-type CreateUserMutationVariables = Record<string, unknown>;
+type GetUsersQueryVariables = Record<string, unknown>;
+type GetUserByIdQueryVariables = { id: string };
+type CreateUserMutationVariables = {
+  name: string;
+  age: number;
+  isMarried: boolean;
+};
 
 export const GET_USERS: TypedDocumentNode<
-  GetUserQuery,
-  GetUserQueryVariables
+  GetUsersQuery,
+  GetUsersQueryVariables
 > = gql`
   query GetUsers {
     getUsers {
@@ -44,8 +50,8 @@ export const GET_USERS: TypedDocumentNode<
 `;
 
 export const GET_USER_BY_ID: TypedDocumentNode<
-  GetUserQuery,
-  GetUserQueryVariables
+  GetUserByIdQuery,
+  GetUserByIdQueryVariables
 > = gql`
   query GetUserById($id: ID!) {
     getUserById(id: $id) {
@@ -58,7 +64,7 @@ export const GET_USER_BY_ID: TypedDocumentNode<
 `;
 
 export const CREATE_USER: TypedDocumentNode<
-  GetUserMutation,
+  CreateUserMutation,
   CreateUserMutationVariables
 > = gql`
   mutation CreateUser($name: String!, $age: Int!, $isMarried: Boolean!) {

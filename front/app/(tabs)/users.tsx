@@ -25,8 +25,19 @@ type User = {
 export default function UsersScreen() {
   const { loading, error, data, refetch } = useQuery(GET_USERS);
   const [createUser, { loading: creating }] = useMutation(CREATE_USER, {
+    refetchQueries: [{ query: GET_USERS }],
+    update: (cache, { data: mutationData }) => {
+      const existingData = cache.readQuery({ query: GET_USERS });
+      if (existingData && mutationData?.createUser) {
+        cache.writeQuery({
+          query: GET_USERS,
+          data: {
+            getUsers: [...existingData.getUsers, mutationData.createUser],
+          },
+        });
+      }
+    },
     onCompleted: () => {
-      refetch();
       setName('');
       setAge('');
       setIsMarried(false);
@@ -40,9 +51,9 @@ export default function UsersScreen() {
   const textColor = useThemeColor({}, 'text');
   const borderColor = useThemeColor({ light: '#ccc', dark: '#444' }, 'text');
 
-  const handleCreateUser = () => {
+  const handleCreateUser = async () => {
     if (!name.trim() || !age.trim()) return;
-    createUser({
+    await createUser({
       variables: {
         name: name.trim(),
         age: parseInt(age, 10),
